@@ -10,11 +10,26 @@ cluster=MongoClient(os.getenv("MongoDB"))
 db=cluster["Quasar"]
 collection=db["counting"]
 
-continuer = True
+continuer = False
+
+def setup(bot):
+    bot.add_cog(counting(bot))
 
 class counting(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command(name="c-stats")
+    async def countingStats(self, ctx, user : discord.User):
+        if not user:
+            user=ctx.author
+        result=collection.find_one({"player_id":user.id})
+        if result==None:
+            await ctx.send("Tu n'as pas de stats :/ Commence à jouer et reviens après.")
+            return
+        total=result.get("total")
+        incorrect=result.get("incorrect")
+        await ctx.send(f"total : {total} | incorrect : {incorrect} | correct : {total-incorrect}")
 
     @commands.Cog.listener()
     async def on_message(self, msg):
