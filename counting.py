@@ -20,16 +20,22 @@ class counting(commands.Cog):
         self.bot = bot
 
     @commands.command(name="c-stats")
-    async def countingStats(self, ctx, user : discord.User):
-        if not user:
+    async def countingStats(self, ctx, user : discord.User=None):
+        if user is None:
             user=ctx.author
-        result=collection.find_one({"player_id":user.id})
+        result=collection.find_one({"_id":user.id})
         if result==None:
             await ctx.send("Tu n'as pas de stats :/ Commence à jouer et reviens après.")
             return
-        total=result.get("total")
+        correct=result.get("correct")
         incorrect=result.get("incorrect")
-        await ctx.send(f"total : {total} | incorrect : {incorrect} | correct : {total-incorrect}")
+        embed = discord.Embed()
+        embed.set_author(name=user.name, icon_url=user.avatar_url)
+        embed.add_field(name="Taux", value=f"{round(correct/(correct+incorrect)*100,3)}%", inline=True)
+        embed.add_field(name="Total", value=correct+incorrect, inline=False)
+        embed.add_field(name="Score", value=correct, inline=True)
+        embed.add_field(name="Erroné", value=incorrect, inline=True)
+        await ctx.send(embed=embed)
 
     @commands.Cog.listener()
     async def on_message(self, msg):
