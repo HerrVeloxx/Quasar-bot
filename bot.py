@@ -12,7 +12,12 @@ collection=db["prefix"]
 
 default_prefixes = ['>']
 
+
+
 ext=["owner", "autres"]
+
+
+
 
 async def get_prefix(bot, msg):
     guild = collection.find_one({"guild":msg.guild.id})
@@ -22,8 +27,15 @@ async def get_prefix(bot, msg):
         Prefix=guild.get("prefixe")
         return Prefix
 
+
+
+
 load_dotenv()
 bot = commands.Bot(command_prefix = get_prefix, description = "Bot multifonctions")
+
+
+
+
 
 @bot.command(name="prefix")
 @commands.guild_only()
