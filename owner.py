@@ -7,9 +7,12 @@ def setup(bot):
 class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        
+    async def id_check(ctx):
+        return ctx.message.author.id == or ctx.message.author.id ==
 
     @commands.command(name="reload", hidden=True)
-    @commands.is_owner()
+    @commands.check(id_check)
     async def reload(self, ctx, name=None):
         if name:
             try:
