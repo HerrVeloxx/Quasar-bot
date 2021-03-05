@@ -9,7 +9,7 @@ class Owner(commands.Cog):
         self.bot = bot
         
     async def id_check(ctx):
-        return ctx.message.author.id == or ctx.message.author.id ==
+        return ctx.message.author.id == 415438702547042304 or ctx.message.author.id == 318494616355602432
 
     @commands.command(name="reload", hidden=True)
     @commands.check(id_check)
