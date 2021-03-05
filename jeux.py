@@ -22,7 +22,7 @@ class Jeux(commands.Cog):
     @commands.command(name="8ball")
     async def ball_choice(self, ctx, *, question=None):
         if not question:
-            help_cmd(ctx, "ball")
+            await self.help_cmd(ctx, "ball")
             return
         choice=random.choice(self.answer)
         await ctx.send(f":8ball: **{ctx.author.name}**, {choice}")
@@ -30,7 +30,7 @@ class Jeux(commands.Cog):
     @commands.command(name="coinflip")
     async def coinflip(self, ctx, adv: discord.User=None):
         if not adv:
-            help_cmd(ctx, "coinflip")
+            await self.help_cmd(ctx, "coinflip")
             return
         embed = discord.Embed()
         embed.set_author(name=f"{ctx.author.name} contre {adv.name}")
@@ -70,7 +70,7 @@ class Jeux(commands.Cog):
             embed.add_field(name="Le lancer est annulé. Dommage...", value=None)
             await ctx.send(embed=embed)
      
-    async def help_cmd(ctx, cmd):
+    async def help_cmd(self, ctx, cmd):
         guild = collection.find_one({"guild":ctx.guild.id})
         if guild == None:
             prefix = ">"
@@ -81,14 +81,14 @@ class Jeux(commands.Cog):
         if cmd=="ball":
             cmd_name="8ball"
             cmd_desc="Répond à toutes vos questions."
-            cmd_util=f"{prefix}8ball [question]"
-            cmd_ex=f"{prefix}8ball Ce bot est-il le meilleur ?"
+            cmd_util="8ball [question]"
+            cmd_ex="8ball Ce bot est-il le meilleur ?"
             cmd_alias="Aucun"
         elif cmd=="coinflip":
             cmd_name="Coinflip"
             cmd_desc="Simule un lancer de pièce entre vous et un autre joueur."
-            cmd_util=f"{prefix}coinflip [joueur à affronter]"
-            cmd_ex=f"{prefix}coinflip {self.bot.mention}"
+            cmd_util="coinflip [joueur à affronter]"
+            cmd_ex="coinflip {self.bot.mention}"
             cmd_alias="Aucun"
         embed = discord.Embed(title=f"Commande : {cmd_name}")
         embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
