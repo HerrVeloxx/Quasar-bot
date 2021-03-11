@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import pymongo
 from pymongo import MongoClient
 import random
+import help_cmd
 
 load_dotenv()
 cluster=MongoClient(os.getenv("MongoDB"))
@@ -17,24 +18,27 @@ def setup(bot):
 class Jeux(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.answer=["assurément !", "c'est sûr !", "essaye encore.", "bien évidemment !", "peut-être...", "pas du tout.", "totalement !", "tu peux y aller !"]
+        self.answer=["assurément !", "c'est sûr !", "essaye encore.", "bien évidemment !", "peut-être...", "pas du tout.", "totalement !", 
+                     "tu peux y aller !", "essaye plus tard.", "pas d'avis.", "c'est ton destin.", "d'après moi oui.", "tu peux compter dessus.", 
+                     "peu probable...", "faut pas rêver !", "n'y compte pas.", "impossible.", "alea jecta est.", "une chance sur deux.", 
+                     "repose ta question.", "sans aucun doute.", "c'est bien parti.", "très probable..."]
         
-    @commands.command(name="8ball")
+    @commands.command(aliases=["8ball", "8b"])
     async def ball_choice(self, ctx, *, question=None):
         if not question:
-            await self.help_cmd(ctx, "ball")
+            await help_cmd.help_cmd(self.bot, ctx, "ball")
             return
         choice=random.choice(self.answer)
         await ctx.send(f":8ball: **{ctx.author.name}**, {choice}")
         
-    @commands.command(name="coinflip")
+    @commands.command(aliases=["coin", "cf"])
     async def coinflip(self, ctx, adv: discord.User=None):
         if not adv:
-            await self.help_cmd(ctx, "coinflip")
+            await help_cmd.help_cmd(self.bot, ctx, "coinflip")
             return
-        embed = discord.Embed()
-        embed.set_author(name=f"{ctx.author.name} contre {adv.name}")
-        embed.add_field(name=None, value=f"**{ctx.author.mention}, Veuillez choisir pile ou face.**")
+        embed = discord.Embed(title=f":coin: {ctx.author.name} contre {adv.name}")
+        embed.add_field(value=f"**{ctx.author.mention}, Veuillez choisir pile ou face.**", name="\u200b")
+        embed.set_footer(text="Pile ou face ?", icon_url="https://www.de-en-ligne.fr/img/pile-ou-face/pile.png")
         msg = await ctx.send(embed=embed)
         await msg.add_reaction("\U0001f17f\uFE0F")
         await msg.add_reaction("🇫")
@@ -50,8 +54,9 @@ class Jeux(commands.Cog):
             author_choice="face"
             user_choice="pile"
         embed = discord.Embed()
-        embed.add_field(name=None, value=f"**{ctx.author.mention} a choisi le côté {author_choice}.**", inline=False)
-        embed.add_field(name=None, value=f"**{adv.mention}, Veuillez confirmez que vous prenez donc le côté {user_choice}.**")
+        embed.add_field(value=f"**{ctx.author.mention} a choisi le côté {author_choice}. \n{adv.mention}, Veuillez confirmez que vous prenez donc le côté {user_choice}.**", 
+                        name="\u200b", inline=False)
+        embed.set_footer(text="Pile ou face ?", icon_url="https://www.de-en-ligne.fr/img/pile-ou-face/pile.png")
         msg = await ctx.send(embed=embed)
         await msg.add_reaction("✅")
         await msg.add_reaction("❌")
@@ -62,39 +67,16 @@ class Jeux(commands.Cog):
         reaction, user = await self.bot.wait_for("reaction_add", timeout = None, check = checkEmoji)
         if reaction.emoji == "✅":
             gagnant=random.choice([ctx.author, adv])
+            if gagnant == ctx.author:
+                perdant=adv
+            else:
+                perdant=ctx.author
             embed = discord.Embed()
-            embed.add_field(name=None, value=f"**Et le gagnant de ce lancer de pièce est ... {gagnant.mention} ! Félicitations 🎉**")
+            embed.add_field(name=f"Et le gagnant de ce lancer de pièce est ...", 
+                            value=f"**{gagnant.mention} ! Félicitations 🎉 \n\nDésolé {perdant.mention}, retente ta chance**", inline=False)
+            embed.set_footer(text="Pile ou face ?", icon_url="https://www.de-en-ligne.fr/img/pile-ou-face/pile.png")
             await ctx.send(embed=embed)
         elif reaction.emoji == "❌":
             embed = discord.Embed()
-            embed.add_field(name="Le lancer est annulé. Dommage...", value=None)
+            embed.add_field(value="**Le lancer est annulé. Dommage...**", name="\u200b")
             await ctx.send(embed=embed)
-     
-    async def help_cmd(self, ctx, cmd):
-        guild = collection.find_one({"guild":ctx.guild.id})
-        if guild == None:
-            prefix = ">"
-        else:
-            Prefix=guild.get("prefixe")
-            prefix = Prefix
-        
-        if cmd=="ball":
-            cmd_name="8ball"
-            cmd_desc="Répond à toutes vos questions."
-            cmd_util="8ball [question]"
-            cmd_ex="8ball Ce bot est-il le meilleur ?"
-            cmd_alias="Aucun"
-        elif cmd=="coinflip":
-            cmd_name="Coinflip"
-            cmd_desc="Simule un lancer de pièce entre vous et un autre joueur."
-            cmd_util="coinflip [joueur à affronter]"
-            cmd_ex="coinflip {self.bot.mention}"
-            cmd_alias="Aucun"
-        embed = discord.Embed(title=f"Commande : {cmd_name}")
-        embed.set_author(name=ctx.author, icon_url=ctx.author.avatar_url)
-        embed.add_field(name="Description", value=cmd_desc)
-        embed.add_field(name=None, value="**Rappel** : Les crochets tel que [] ne sont pas à utiliser lors de l'éxecution des commandes.")
-        embed.add_field(name="Utilisation", value=prefix + cmd_util)
-        embed.add_field(name="Exemple", value=prefix + cmd_ex)
-        embed.add_field(name="Aliases", value=cmd_alias)
-        await ctx.send(embed=embed)

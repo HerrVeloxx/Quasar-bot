@@ -8,7 +8,7 @@ class commandsModerator(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="del")
+    @commands.command(aliases=["clear", "del"])
     @commands.has_permissions(manage_messages=True)
     async def delete(self, ctx, number: int):
         messages = await ctx.channel.history(limit=number + 1).flatten()
