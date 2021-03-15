@@ -12,17 +12,20 @@ class Logs(commands.Cog):
     async def on_message_delete(self, msg):
         ctx=await self.bot.get_context(msg)
         channel=ctx.guild.get_channel(818564737339228180)
-        contenu=[]
-        for i in enumerate(msg.content):
-            if i.isdigit():
-                try:
-                    user=ctx.guild.get_channel(i)
-                    contenu.append(user)
-                except:
-                    contenu.append(i)
-                finally:
-                    continue
-            contenu.append(i)
+        try:
+            texte = msg.content.split("<")
+            début=texte[0]
+            suite=texte[1].split(">")
+            fin=suite[1]
+            id=texte[0]
+            if id[0]=="#":
+                #channel
+            elif id[0]=="@":
+                #user
+            else:
+                contenu=msg.content
+        except:
+            contenu=msg.content
                     
         embed = discord.Embed(color=0xff0000)
         embed.set_author(name=contenu)
